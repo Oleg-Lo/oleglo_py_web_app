@@ -11,6 +11,11 @@ class About:
         return '200 OK', render('about.html', data=request.get('data', None))
 
 
+class Registration:
+    def __call__(self, request):
+        return '200 OK', render('reg.html', data=request.get('data', None))
+
+
 class NotFound404:
     def __call__(self, request):
         return '404 WHAT', '404 PAGE Not Found'
