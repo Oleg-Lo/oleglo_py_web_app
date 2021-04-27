@@ -1,15 +1,23 @@
-<!DOCTYPE html>
+{% extends "base_page.html" %}
+{% block title %}
+О программе!
+{% endblock %}
 
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<title> О программе! </title>
-</head>
+{% block style %}
+	{% include "included_style.html" %}
+{% endblock %}
 
-<body>
-<p>
-Это простой пример тестового задания выполненного Oleg'ом Lo<br>
-Для того, чтобы посмотреть код страницы, нажмите ctrl + U</p>
-</body>
+{% block header %}
+	{% include "header.html" %}
+{% endblock %}
 
-</html>
+
+{% block content %}
+	<p>Это простой пример тестового задания выполненного Oleg'ом Lo<br>
+		Версия продукта 1.0.0.1<br>
+		Для того, чтобы посмотреть код страницы, нажмите ctrl + U</p>
+{% endblock %}
+
+{% block footer %}
+	{% include "included_footer.html" %}
+{% endblock %}
