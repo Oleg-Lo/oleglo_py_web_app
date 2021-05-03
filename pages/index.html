@@ -15,6 +15,29 @@ Oleg Lo Main page
 	{% include "box.html" %}
 {% endblock %}
 
+
+{% block body %}
+	<div>
+		<a href="/create-category/">Создать новую категорию курса</a>
+	</div>
+	<div>
+		<h1>Список существующих категорий курсов:</h1>
+		{% if object_list %}
+			{% for item in object_list %}
+			<li>
+				{{item.name}} <span>Количество курсов: {{item.course_count()}}</span>
+				<a href="/courses-list/?id={{item.id}}">Показать курсы</a>
+			</li>
+			{% endfor %}
+		{% else %}
+			<p>Список пуст...</p>
+		{% endif %}
+	</div>
+	<br>
+    <br>
+{% endblock %}
+
+
 {% block content %}
 <div class="content">
 <div class="banners">

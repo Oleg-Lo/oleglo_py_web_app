@@ -1,6 +1,4 @@
 import quopri
-from encodings.utf_8 import decode
-
 from lo_framework.lo_req import GetReq, PostReq
 
 
@@ -26,6 +24,7 @@ class FrameWork:
         if method == 'POST':
             post_data = PostReq().get_req_params(env)
             request['data'] = post_data
+            print(f'request={request}')
             print(f'{method}: {FrameWork.decode_val(post_data)}')
         if method == 'GET':
             request_params = GetReq().get_req_params(env)
@@ -34,16 +33,18 @@ class FrameWork:
 
         # -------отработака паттерна page controller--------------
         if path in self.routes_list:
+            print(f'path={path}')
             view = self.routes_list[path]
         else:
             view = PageNotFound404()
-        request = {}
+        # request = {}
 
         # --------наполнение словаря-----------
         for front in self.fronts_list:
             front(request)
 
         # --------start controller----------------
+        print(f'request2={request}')
         code, body = view(request)
         start_resp(code, [('Content-Type', 'text/html')])
         return [body.encode('utf-8')]

@@ -1,4 +1,5 @@
-from jinja2 import Template, Environment, FileSystemLoader
+from jinja2 import Template, FileSystemLoader
+from jinja2.environment import Environment
 
 
 def render(template_name, folder='pages', **kwargs):

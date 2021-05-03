@@ -5,6 +5,7 @@ class GetReq:
     @staticmethod
     def get_req_params(environ):
         query_string = environ['QUERY_STRING']
+        print(query_string)
         request_params = {}
         if query_string:
             params = query_string.split('&')
@@ -16,6 +17,7 @@ class GetReq:
 
 
 class PostReq:
+
     @staticmethod
     def get_req_params(environ):
         data_len = environ.get('CONTENT_LENGTH')
@@ -24,11 +26,8 @@ class PostReq:
 
         request_params = {}
         if data:
-            #print(f'data={data}')
             data_str = data.decode(encoding='utf-8')
-            #print(data_str)
             params = data_str.split('&')
-            #print(params)
             for item in params:
                 k, v = item.split('=')
                 request_params[k] = v

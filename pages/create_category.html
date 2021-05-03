@@ -1,0 +1,25 @@
+{% extends "base_page.html" %}
+
+{% block title %}
+Course creation!
+{% endblock %}
+
+{% block style %}
+	{% include "included_style.html" %}
+{% endblock %}
+
+{% block header %}
+	{% include "header.html" %}
+{% endblock %}
+
+{% block body %}
+<h1>Создание категории</h1>
+<form method="post">
+    <input type="text" name="name" placeholder="Название">
+    <button type="submit">Save and return to main</button>
+</form>
+{% endblock %}
+
+{% block footer %}
+	{% include "included_footer.html" %}
+{% endblock %}
