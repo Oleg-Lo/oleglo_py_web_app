@@ -12,6 +12,7 @@ def other_front(request):
 
 fronts = [secret_front, other_front]
 
+'''
 routes = {'/': Index(),
           '/about/': About(),
           '/reg/': Registration(),
@@ -20,3 +21,5 @@ routes = {'/': Index(),
           '/create-course/': CreateCourse(),
           '/category-list/': CategoryList(),
           '/copy-course/': CopyCourse()}
+'''
+

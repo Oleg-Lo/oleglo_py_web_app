@@ -16,6 +16,10 @@ class FrameWork:
         path = env['PATH_INFO']
         if not path.endswith('/'):
             path = f'{path}/'
+        if path.endswith('about/'):
+            path = '/about/'
+        if path.endswith('reg/'):
+            path = '/reg/'
 
         request = {}
         method = env['REQUEST_METHOD']
@@ -77,6 +81,29 @@ class FrameWork:
             new_data[k] = data_str
             """
         return new_data
+
+
+class DebugFrameWork(FrameWork):
+    def __init__(self, routes, fronts):
+        self.application = FrameWork(routes, fronts)
+        super().__init__(routes, fronts)
+
+    def __call__(self, env, start_resp):
+        print('Hello from debug framework!')
+        print(env['HTTP_REFERER'])
+        print(env)
+        print(start_resp)
+        return self.application(env, start_resp)
+
+
+class FakeFrameWork(FrameWork):
+    def __init__(self, routes, fronts):
+        self.application = FrameWork(routes, fronts)
+        super().__init__(routes, fronts)
+
+    def __call__(self, env, start_resp):
+        start_resp('200 OK', [('Content-Type', 'text/html')])
+        return [b'Hello World from fake framework!!!']
 
 
 if __name__ == "__main__":

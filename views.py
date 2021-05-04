@@ -2,40 +2,54 @@ from datetime import date
 
 from lo_framework.lo_templator import render
 from patterns.creational import Engine, Logger
+from patterns.structural import RouteDecorator, DebugDecorator
 
 site = Engine()
 logger = Logger('main')
 
+routes = {}
 
+
+@RouteDecorator(routes=routes, url='/')
 class Index:
+    @DebugDecorator(name='Index')
     def __call__(self, request):
         return '200 OK', render('index.html', object_list=site.categories)
         # return '200 OK', render('index.html', data=request.get('data', None))
 
 
+@RouteDecorator(routes=routes, url='/about/')
 class About:
+    @DebugDecorator(name='About')
     def __call__(self, request):
         return '200 OK', render('about.html', data=request.get('data', None))
 
 
+@RouteDecorator(routes=routes, url='/reg/')
 class Registration:
+    @DebugDecorator(name='Registration')
     def __call__(self, request):
         return '200 OK', render('reg.html', data=request.get('data', None))
 
 
 class NotFound404:
+    @DebugDecorator(name='NotFound404')
     def __call__(self, request):
         return '404 WHAT', '404 PAGE Not Found'
 
 
 # контроллер - Расписания
+@RouteDecorator(routes=routes, url='/schedule/')
 class Schedule:
+    @DebugDecorator(name='Schedule')
     def __call__(self, request):
         return '200 OK', render('schedule.html', data=date.today())
 
 
 # контроллер - список курсов
+@RouteDecorator(routes=routes, url='/courses-list/')
 class CoursesList:
+    @DebugDecorator(name='CoursesList')
     def __call__(self, request):
         logger.log('Список курсов')
         try:
@@ -49,14 +63,18 @@ class CoursesList:
 
 
 # контроллер - список категорий
+@RouteDecorator(routes=routes, url='/category-list/')
 class CategoryList:
+    @DebugDecorator(name='CategoryList')
     def __call__(self, request):
         logger.log('Список категорий')
         return '200 OK', render('category_list.html', object_list=site.categories)
 
 
 # контроллер - создать категорию
+@RouteDecorator(routes=routes, url='/create-category/')
 class CreateCategory:
+    @DebugDecorator(name='CreateCategory')
     def __call__(self, request):
         print(request)
         if request['method'] == 'POST':
@@ -78,7 +96,9 @@ class CreateCategory:
 
 
 # контроллер - копировать курс
+@RouteDecorator(routes=routes, url='/copy-course/')
 class CopyCourse:
+    @DebugDecorator(name='CopyCourse')
     def __call__(self, request):
         request_params = request['request_params']
 
@@ -98,7 +118,7 @@ class CopyCourse:
                 category.courses.append(new_course)
                 site.courses.append(new_course)
 
-            #return '200 OK', render('course_list.html', object_list=site.courses)
+            # return '200 OK', render('course_list.html', object_list=site.courses)
             return '200 OK', render('course_list.html',
                                     object_list=category.courses,
                                     name=category.name,
@@ -108,9 +128,11 @@ class CopyCourse:
 
 
 # контроллер - создать курс
+@RouteDecorator(routes=routes, url='/create-course/')
 class CreateCourse:
     category_id = -1
 
+    @DebugDecorator(name='CreateCourse')
     def __call__(self, request):
         if request['method'] == 'POST':
             # метод пост
