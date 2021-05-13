@@ -3,8 +3,12 @@ import quopri
 
 
 # ---------abstract classes----------------
+from patterns.behavioral import ConsoleWriter, Subject
+
+
 class User:
-    pass
+    def __init__(self, name):
+        self.name = name
 
 
 class Teacher(User):
@@ -12,8 +16,9 @@ class Teacher(User):
 
 
 class Student(User):
-    pass
-
+    def __init__(self, name):
+        self.course = []
+        super().__init__(name)
 
 # -----------------------------------------
 
@@ -27,8 +32,8 @@ class UserFactory:
 
     # Factory method pattern
     @classmethod
-    def create(cls, type_):
-        return cls.types[type_]()
+    def create(cls, type_, name):
+        return cls.types[type_](name)
 
 
 # Prototype pattern - Course
@@ -37,11 +42,21 @@ class CoursePrototype:
         return copy.deepcopy(self)
 
 
-class Course(CoursePrototype):
+class Course(CoursePrototype, Subject):
     def __init__(self, name, category):
         self.name = name
         self.category = category
         self.category.courses.append(self)
+        self.students = []
+        super().__init__()
+
+    def __getitem__(self, item):
+        return self.students[item]
+
+    def add_student(self, student: Student):
+        self.students.append(student)
+        student.course.append(self)
+        self.notify()
 
 
 class InteractiveCourse(Course):
@@ -91,8 +106,8 @@ class Engine:
         self.categories = []
 
     @staticmethod
-    def create_user(type_):
-        return UserFactory.create(type_)
+    def create_user(type_, name):
+        return UserFactory.create(type_, name)
 
     @staticmethod
     def create_category(name, category=None):
@@ -121,6 +136,11 @@ class Engine:
             if item.name == name:
                 return item
         return None
+
+    def get_student(self, name) -> Student:
+        for item in self.students:
+            if item.name == name:
+                return item
 
     @staticmethod
     def decode_value(val):
@@ -152,9 +172,9 @@ class SingletonByName(type):
 
 
 class Logger(metaclass=SingletonByName):
-    def __init__(self, name):
+    def __init__(self, name, writer=ConsoleWriter()):
         self.name = name
+        self.writer = writer
 
-    @staticmethod
-    def log(text):
-        print('log--->', text)
+    def log(self, text):
+        self.writer.write_message('log--->' + text)

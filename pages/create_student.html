@@ -1,0 +1,20 @@
+{% extends "base_page.html" %}
+{% block title %}
+Создание студента
+{% endblock %}
+
+{% block style %}
+	{% include "included_style.html" %}
+{% endblock %}
+
+{% block header %}
+	{% include "header.html" %}
+{% endblock %}
+
+{% block body %}
+<h1>Создание студента</h1>
+<form method="post">
+    <input type="text" name="name" placeholder="Имя">
+    <button type="submit">Save...</button>
+</form>
+{% endblock %}

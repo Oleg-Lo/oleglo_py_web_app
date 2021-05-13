@@ -1,0 +1,44 @@
+{% extends "base_page.html" %}
+{% block title %}
+Создание студента
+{% endblock %}
+
+{% block style %}
+	{% include "included_style.html" %}
+{% endblock %}
+
+{% block header %}
+	{% include "header.html" %}
+{% endblock %}
+
+{% block body %}
+<h1>Список студентов:</h1>
+<table>
+<tr><th>Студент</th><th>Курсы</th></tr>
+
+
+			{% for item in object_list %}
+			<tr>
+				<td>{{item.name}}</td>
+			
+			
+				
+				{% for course in item.course %}
+					<td>{{course.name}}</td>
+					
+				{% endfor %}
+			
+			
+			
+			
+			</tr>
+			{% endfor %}
+		
+</table>
+<br>
+<br>
+{% endblock %}
+
+{% block footer %}
+	{% include "included_footer.html" %}
+{% endblock %}

@@ -11,16 +11,13 @@ Oleg Lo Main page
 	{% include "header.html" %}
 {% endblock %}
 
-{% block box %}
-	{% include "box.html" %}
-{% endblock %}
+
 
 
 {% block body %}
-	<div>
+<div class="box">
+	<div class="box-base">
 		<a href="/create-category/">Создать новую категорию курса</a>
-	</div>
-	<div>
 		<h1>Список существующих категорий курсов:</h1>
 		{% if object_list %}
 			{% for item in object_list %}
@@ -32,9 +29,30 @@ Oleg Lo Main page
 		{% else %}
 			<p>Список пуст...</p>
 		{% endif %}
+		<hr>
+		<li>
+			<a href="/student-list/">Список студентов</a>
+		</li>
+		<li>
+			<a href="/create-student/">Создать студента</a>
+		</li>
+		<li>
+			<a href="/add-student/">Добавить студента на курс</a>
+		</li>
 	</div>
+	
+
+	
+<div class="box-side">
+<div class="sqr">
+</div>
+</div>
+</div>
+
+<div>
+		
 	<br>
-    <br>
+    <hr>
 {% endblock %}
 
 

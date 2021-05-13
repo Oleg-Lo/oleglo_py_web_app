@@ -90,7 +90,7 @@ class DebugFrameWork(FrameWork):
 
     def __call__(self, env, start_resp):
         print('Hello from debug framework!')
-        print(env['HTTP_REFERER'])
+        #print(env['HTTP_REFERER'])
         print(env)
         print(start_resp)
         return self.application(env, start_resp)

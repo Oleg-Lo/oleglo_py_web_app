@@ -1,11 +1,14 @@
 from datetime import date
 
 from lo_framework.lo_templator import render
+from patterns.behavioral import BaseSerializer, CreateView, EMAILNotifier, SMSNotifier, ListView
 from patterns.creational import Engine, Logger
 from patterns.structural import RouteDecorator, DebugDecorator
 
 site = Engine()
 logger = Logger('main')
+email_notifier = EMAILNotifier()
+sms_notifier = SMSNotifier()
 
 routes = {}
 
@@ -60,6 +63,22 @@ class CoursesList:
                                     id=category.id)
         except KeyError:
             return '200 OK', 'Course list is empty!'
+
+
+@RouteDecorator(routes=routes, url='/student-list/')
+class StudentList(ListView):
+    q_set = site.students
+    template_name = 'student_list.html'
+
+
+@RouteDecorator(routes=routes, url='/create-student/')
+class CreateStudent(CreateView):
+    template_name = 'create_student.html'
+
+    def create_object(self, data):
+        name = site.decode_value(data['name'])
+        new_obj = site.create_user('student', name)
+        site.students.append(new_obj)
 
 
 # контроллер - список категорий
@@ -159,3 +178,28 @@ class CreateCourse:
                 return '200 OK', render('create_course.html', name=category.name, id=category.id)
             except KeyError:
                 return '200 OK', 'Category list is empty'
+
+
+@RouteDecorator(routes=routes, url='/add-student/')
+class AddStudentByCourse(CreateView):
+    template_name = 'add_student.html'
+
+    def get_context(self):
+        context = super().get_context()
+        context['courses'] = site.courses
+        context['students'] = site.students
+        return context
+
+    def create_object(self, data):
+        course_name = site.decode_value(data['course_name'])
+        course = site.get_course(course_name)
+        student_name = site.decode_value(data['student_name'])
+        student = site.get_student(student_name)
+        course.add_student(student)
+
+
+@RouteDecorator(routes=routes, url='/api/')
+class CourseAPI:
+    @DebugDecorator(name='CourseAPI')
+    def __call__(self, req):
+        return '200 OK', BaseSerializer(site.courses).save()
