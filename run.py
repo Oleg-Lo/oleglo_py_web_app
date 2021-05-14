@@ -4,7 +4,7 @@ from lo_framework.lo_main import FrameWork, FakeFrameWork, DebugFrameWork
 from urls import fronts
 from views import routes
 
-#application = FrameWork(routes, fronts)
+# application = FrameWork(routes, fronts)
 application = DebugFrameWork(routes, fronts)
 # application = FakeFrameWork(routes, fronts)
 

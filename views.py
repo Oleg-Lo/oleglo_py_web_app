@@ -2,13 +2,16 @@ from datetime import date
 
 from lo_framework.lo_templator import render
 from patterns.behavioral import BaseSerializer, CreateView, EMAILNotifier, SMSNotifier, ListView
-from patterns.creational import Engine, Logger
+from patterns.creational import Engine, Logger, MapperRegistry
 from patterns.structural import RouteDecorator, DebugDecorator
+from patterns.unit_of_work import UnitOfWork
 
 site = Engine()
 logger = Logger('main')
 email_notifier = EMAILNotifier()
 sms_notifier = SMSNotifier()
+UnitOfWork.new_current()
+UnitOfWork.get_current().set_mapper_registry(MapperRegistry)
 
 routes = {}
 
@@ -67,8 +70,12 @@ class CoursesList:
 
 @RouteDecorator(routes=routes, url='/student-list/')
 class StudentList(ListView):
-    q_set = site.students
+    #q_set = site.students
     template_name = 'student_list.html'
+
+    def get_queryset(self):
+        mapper = MapperRegistry.get_current_mapper('student')
+        return mapper.get_all()
 
 
 @RouteDecorator(routes=routes, url='/create-student/')
@@ -79,6 +86,8 @@ class CreateStudent(CreateView):
         name = site.decode_value(data['name'])
         new_obj = site.create_user('student', name)
         site.students.append(new_obj)
+        new_obj.mark_as_new()
+        UnitOfWork.get_current().commit()
 
 
 # контроллер - список категорий
@@ -154,17 +163,15 @@ class CreateCourse:
     @DebugDecorator(name='CreateCourse')
     def __call__(self, request):
         if request['method'] == 'POST':
-            # метод пост
             data = request['data']
-
             name = data['name']
             name = site.decode_value(name)
-
             category = None
             if self.category_id != -1:
                 category = site.find_category_by_id(int(self.category_id))
-
                 course = site.create_course('record', name, category)
+                course.observers.append(email_notifier)
+                course.observers.append(sms_notifier)
                 site.courses.append(course)
 
             return '200 OK', render('course_list.html', object_list=category.courses,
@@ -187,6 +194,19 @@ class AddStudentByCourse(CreateView):
     def get_context(self):
         context = super().get_context()
         context['courses'] = site.courses
+        # context['students'] = site.students
+        mapper = MapperRegistry.get_current_mapper('student')
+        students_from_db = mapper.get_all()
+        #context['students'] = students_from_db
+        print(students_from_db)
+        print(site.students)
+        for st in students_from_db:
+            print(f'item.name={st.name}')
+            student = site.get_student(st.name)
+            print(f'student={student}')
+            if not student:
+                site.students.append(st)
+                print(f'append ok')
         context['students'] = site.students
         return context
 
@@ -194,7 +214,9 @@ class AddStudentByCourse(CreateView):
         course_name = site.decode_value(data['course_name'])
         course = site.get_course(course_name)
         student_name = site.decode_value(data['student_name'])
+        print(f'student_name={student_name}')
         student = site.get_student(student_name)
+        print(f'student={student}')
         course.add_student(student)
 
 

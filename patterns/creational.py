@@ -1,9 +1,11 @@
 import copy
 import quopri
 
-
 # ---------abstract classes----------------
+import sqlite3
+
 from patterns.behavioral import ConsoleWriter, Subject
+from patterns.unit_of_work import DomainObj
 
 
 class User:
@@ -15,10 +17,11 @@ class Teacher(User):
     pass
 
 
-class Student(User):
+class Student(User, DomainObj):
     def __init__(self, name):
         self.course = []
         super().__init__(name)
+
 
 # -----------------------------------------
 
@@ -139,6 +142,7 @@ class Engine:
 
     def get_student(self, name) -> Student:
         for item in self.students:
+            print(f'item={item}')
             if item.name == name:
                 return item
 
@@ -178,3 +182,87 @@ class Logger(metaclass=SingletonByName):
 
     def log(self, text):
         self.writer.write_message('log--->' + text)
+
+
+# ------------------------------------------------------------------------------------
+class StudentMapper:
+    def __init__(self, conn):
+        self.conn = conn
+        self.cursor = conn.cursor()
+        self.table_name = 'student'
+
+    def get_all(self):
+        sql_str = f'select * from {self.table_name}'
+        self.cursor.execute(sql_str)
+        res = []
+        for item in self.cursor.fetchall():
+            id, name = item
+            student = Student(name)
+            student.id = id
+            res.append(student)
+        return res
+
+    def find_by_id(self):
+        sql_str = f'select id,name from {self.table_name} where id=?'
+        self.cursor.execute(sql_str, (id,))
+        res = self.cursor.fetchone()
+        if res:
+            return Student(*res)
+        else:
+            raise DBCommitException(f'row with id={id} is not found')
+
+    def insert(self, obj):
+        sql_str = f'insert into {self.table_name} (name) values (?)'
+        self.cursor.execute(sql_str, (obj.name,))
+        try:
+            self.conn.commit()
+        except Exception as ex:
+            raise DBCommitException(ex.args)
+
+    def update(self, obj):
+        sql_str = f'update {self.table_name} set name=? where id=?'
+        self.cursor.execute(sql_str, (obj.name, obj.id))
+        try:
+            self.conn.commit()
+        except Exception as ex:
+            raise DBDelException(ex.args)
+
+    def delete(self, obj):
+        sql_str = f'delete from {self.table_name} where id=?'
+        self.cursor.execute(sql_str, (obj.id,))
+        try:
+            self.conn.commit()
+        except Exception as ex:
+            raise DBDelException(ex.args)
+
+
+class RecordNotFoundException(Exception):
+    pass
+
+
+class DBCommitException(Exception):
+    pass
+
+
+class DBUpdateException(Exception):
+    pass
+
+
+class DBDelException(Exception):
+    pass
+
+
+conn = sqlite3.connect('web_project_database.db3')
+
+
+class MapperRegistry:
+    mappers = {'student': StudentMapper}
+
+    @staticmethod
+    def get_mapper(obj):
+        if isinstance(obj, Student):
+            return StudentMapper(conn)
+
+    @staticmethod
+    def get_current_mapper(name):
+        return MapperRegistry.mappers[name](conn)
